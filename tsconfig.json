@@ -9,7 +9,8 @@
       "@images/*": ["src/images/*"],
       "@styles/*": ["src/styles/*"],
       "@utils/*": ["src/utils/*"],
-      "@lib/*": ["src/utils/*"]
+      "@lib/*": ["src/utils/*"],
+      "@icons/*": ["src/icons/*"],
 
 
     },

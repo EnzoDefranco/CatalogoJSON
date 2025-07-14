@@ -1,1 +1,52 @@
-<header>Esto es el header</header>
+---
+import SearchBar    from '@icons/Search.astro';
+import BurgerMenu   from '@icons/BurgerMenu.astro';
+import newLogoBlack from '../../public/newLogoBlack.png';
+import logoAzul     from '../../public/logoAzul.png';
+---
+
+<header class="bg-white py-6 px-4">
+  <div class="container mx-auto flex items-center justify-between">
+
+    <!-- 1. Burger + Logo móvil (ocultos en lg) -->
+    <div class="flex items-center">
+      <button class="p-2 lg:hidden bg-transparent hover:bg-transparent focus:bg-transparent border-none outline-none">
+        <BurgerMenu class="h-10 bg-white border-0" />
+      </button>
+      <a href="/" class="ml-2 block lg:hidden">
+        <img src='../../public/newLogoBlack.png' class="h-8" alt="Logo móvil" />
+      </a>
+      <!-- Logo desktop -->
+      <a href="/" class="hidden lg:block">
+        <img src='../../public/logoAzul.png' class="h-8" alt="Logo desktop" />
+      </a>
+    </div>
+
+    <!-- 2. Search (flex-1 para que crezca en mobile y desktop) -->
+    <div class="flex-1 mx-4 max-w-full lg:max-w-md">
+      <form class="relative">
+        <SearchBar class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+        <input
+          type="search"
+          placeholder="Buscar por producto"
+          class="w-full border border-gray-300 rounded-full py-2.5 pl-10 pr-4
+                 focus:outline-none focus:ring-2 focus:ring-primary transition"
+        />
+      </form>
+    </div>
+
+    <!-- 3. Nav links: ocultos en mobile, visibles desde lg -->
+    <nav class="hidden lg:flex space-x-6">
+      <a  class="text-md font-semibold text-primary border py-2.5 px-5 rounded-full hover:bg-primary hover:text-white transition">
+        Quienes somos
+      </a>
+      <a  class="text-md font-semibold text-primary border py-2.5 px-5 rounded-full hover:bg-primary hover:text-white transition">
+        Catálogo
+      </a>
+      <a  class="text-md font-semibold text-primary border py-2.5 px-5 rounded-full hover:bg-primary hover:text-white transition">
+        Combos
+      </a>
+    </nav>
+
+  </div>
+</header>
