@@ -1,50 +1,29 @@
 ---
-/*
-  Este componente YA NO hace import estático de JSON,
-  sino que en tiempo de cliente lee "/cursos.json" desde tu bucket S3 (o mismo en public/)
-  de modo que puedas reemplazar ese archivo sin rebuild.
-*/
+import ProductCard from './ProductCard.astro';
+import type { Props as PCProps } from './ProductCard.astro';
+import cursosRaw from '../../public/cursos.json';
+
+type Course = PCProps['product'];
+const rawList = cursosRaw.data as any[];
+const cursos: Course[] = rawList.map((r) => ({
+  idArticulo:      r.idArticulo,
+  descripcion:     r.descripcion,
+  proveedorNombre: r.proveedorNombre,
+  precioLista4:    r.precioLista4,
+  stock:           r.stock,
+  division:        r.division,
+  kilosUnitarios:  r.kilosUnitarios,
+  eanUnidad:       r.eanUnidad,
+  ultModificacion: r.ultModificacion,
+  imageUrl:        r.imageUrl,
+}));
 ---
-<section id="catalogo" class="container mx-auto py-8">
-  <h1 class="text-3xl font-bold mb-6">Catálogo de articulos</h1>
 
-  <!-- Aquí se inyectarán las cards -->
-  <div id="grid" class="grid gap-8 sm:grid-cols-2 lg:grid-cols-3"></div>
+<section id="catalogo" class="container mx-auto py-8 px-4">
+  <h1 class="text-3xl font-bold mb-6">Catálogo de artículos</h1>
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12">
+    {cursos.map((course) => (
+      <ProductCard product={course} />
+    ))}
+  </div>
 </section>
-
-<script type="module">
-  (async () => {
-    // 1) Cambia la ruta si subes tu JSON a otro path de tu bucket
-    const ENDPOINT = '/cursos.json';
-
-    // 2) Trae los datos en el cliente
-    let courses = [];
-    try {
-      const res = await fetch(ENDPOINT);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const raw = await res.json();
-      courses = Array.isArray(raw.data) ? raw.data : raw;
-    } catch (e) {
-      console.error('No se pudo cargar JSON:', e);
-      return;
-    }
-
-    // 3) Renderiza cada card
-    const grid = document.getElementById('grid');
-    const fragment = document.createDocumentFragment();
-    courses.forEach(course => {
-      const card = document.createElement('div');
-      card.className = 'card bg-white p-4 rounded-lg shadow-md';
-      card.dataset.provider = course.proveedorNombre.toLowerCase();
-      card.innerHTML = `
-        <h2 class="text-xl font-bold mb-2">${course.idArticulo}</h2>
-        <p class="text-gray-700 mb-2">${course.descripcion}</p>
-        <p class="text-gray-500 mb-2">Proveedor: ${course.proveedorNombre}</p>
-        <p class="text-gray-500">Precio: ${course.precioLista4}</p>
-      `;
-      fragment.appendChild(card);
-    });
-    grid.appendChild(fragment);
-
-  })();
-</script>
