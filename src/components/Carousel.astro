@@ -1,0 +1,102 @@
+---
+// src/components/Carousel.astro
+
+// 1) Glob dinámico apuntando a src/assets/images
+const modules = import.meta.glob('../assets/images/*.webp', { as: 'url' });
+
+// 2) Ejecutamos cada loader para obtener las URLs
+const images = await Promise.all(
+  Object.values(modules).map(loader => loader())
+) as string[];
+
+// Intervalo de autoplay en milisegundos (0 para desactivar)
+const autoplay = 5000;
+---
+
+<style>
+  .carousel {
+    position: relative;
+    width: 100vw;
+    overflow: hidden;
+    /* no height fija: el contenedor se ajusta a la imagen */
+  }
+
+  .slides {
+    display: flex;
+    width: calc(100vw * var(--count));
+    transition: transform 0.5s ease;
+    /* no height fija */
+  }
+
+  .slide {
+    flex-shrink: 0;
+    width: 100vw;
+    /* el slide toma el ancho completo y la altura vendrá dada por la imagen */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .slide img {
+    display: block;
+    width: 100vw;  /* ocupa todo el ancho del viewport */
+    height: auto;  /* altura proporcional, sin recorte */
+  }
+
+  .btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.4);
+    color: white;
+    border: none;
+    font-size: 2rem;
+    padding: 0.5rem;
+    cursor: pointer;
+    z-index: 10;
+  }
+  .prev { left: 1rem; }
+  .next { right: 1rem; }
+</style>
+
+<div class="carousel">
+  <button class="btn prev" aria-label="Anterior">‹</button>
+  <div class="slides" style={`--count: ${images.length}`}>
+    {images.map(src => (
+      <div class="slide">
+        <img src={src} alt="" loading="lazy" />
+      </div>
+    ))}
+  </div>
+  <button class="btn next" aria-label="Siguiente">›</button>
+</div>
+
+<script type="module">
+  const carousel = document.querySelector('.carousel');
+  const slides   = carousel.querySelector('.slides');
+  const prev     = carousel.querySelector('.prev');
+  const next     = carousel.querySelector('.next');
+  const total    = slides.children.length;
+  let idx = 0;
+
+  function go() {
+    slides.style.transform = `translateX(-${idx * 100}vw)`;
+  }
+
+  prev.addEventListener('click', () => {
+    idx = (idx - 1 + total) % total;
+    go();
+  });
+
+  next.addEventListener('click', () => {
+    idx = (idx + 1) % total;
+    go();
+  });
+
+  if (autoplay > 0) {
+    setInterval(() => {
+      idx = (idx + 1) % total;
+      go();
+    }, autoplay);
+  }
+</script>
