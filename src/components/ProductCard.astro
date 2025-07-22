@@ -12,6 +12,7 @@ export interface Props {
     eanUnidad?: string;
     ultModificacion?: string;
     imageUrl?: string;
+    precioL4?: number;
   };
 }
 const { product } = Astro.props as Props;
@@ -82,7 +83,7 @@ const isOutOfStock = product.stock === 0;
   <!-- Precio -->
   <div class="mt-4">
     <p class="text-lg font-bold text-gray-900">
-      ${product.precioLista4.toFixed(2)}
+      ${product.precioL4?.toFixed(2)}
     </p>
   </div>
 </div>
