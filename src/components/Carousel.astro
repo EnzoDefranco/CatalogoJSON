@@ -1,102 +1,163 @@
 ---
-// src/components/Carousel.astro
+import Layout from '../layouts/Layout.astro';   
 
-// 1) Glob dinámico apuntando a src/assets/images
-const modules = import.meta.glob('../assets/images/*.webp', { as: 'url' });
+// Rutas a tus imágenes en public/combos/
+const images = [
+  '/combos/hero1.webp',
+  '/combos/hero2.webp',
+  '/combos/hero3.webp',
+  '/combos/hero4.webp',
+  '/combos/hero5.webp',
+  '/combos/hero6.webp',
+    '/combos/hero7.webp',
+    '/combos/hero8.webp',
+];
 
-// 2) Ejecutamos cada loader para obtener las URLs
-const images = await Promise.all(
-  Object.values(modules).map(loader => loader())
-) as string[];
-
-// Intervalo de autoplay en milisegundos (0 para desactivar)
-const autoplay = 5000;
 ---
 
 <style>
-  .carousel {
+  .carousel-wrapper {
     position: relative;
-    width: 100vw;
-    overflow: hidden;
-    /* no height fija: el contenedor se ajusta a la imagen */
   }
 
-  .slides {
-    display: flex;
-    width: calc(100vw * var(--count));
-    transition: transform 0.5s ease;
-    /* no height fija */
-  }
-
-  .slide {
-    flex-shrink: 0;
-    width: 100vw;
-    /* el slide toma el ancho completo y la altura vendrá dada por la imagen */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .slide img {
-    display: block;
-    width: 100vw;  /* ocupa todo el ancho del viewport */
-    height: auto;  /* altura proporcional, sin recorte */
-  }
-
-  .btn {
+  .btn-arrow {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    background: rgba(0, 0, 0, 0.4);
-    color: white;
+    background: rgba(255,255,255,0.8);
     border: none;
     font-size: 2rem;
-    padding: 0.5rem;
+    padding: 0.25rem 0.5rem;
     cursor: pointer;
     z-index: 10;
+    border-radius: 0.25rem;
   }
-  .prev { left: 1rem; }
-  .next { right: 1rem; }
+  .btn-arrow:disabled {
+    opacity: 0.3;
+    cursor: default;
+  }
+  .prev {
+    left: 0.5rem;
+  }
+  .next {
+    right: 0.5rem;
+  }
+
+  .carousel {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    padding: 1rem 3rem; /* espacio para flechas */
+  }
+  .carousel::-webkit-scrollbar { display: none; }
+
+  .thumbnail {
+    flex: 0 0 auto;
+    width: 300px;
+    height: 420px;
+    overflow: hidden;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+  }
+  .thumbnail:hover {
+    transform: scale(1.05);
+  }
+  .thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.8);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+  }
+  .modal.open {
+    display: flex;
+  }
+  .modal img {
+    max-width: 90vw;
+    max-height: 90vh;
+    object-fit: contain;
+    border-radius: 0.5rem;
+    box-shadow: 0 0 1rem rgba(0,0,0,0.5);
+  }
+  .modal .close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-size: 2rem;
+    color: white;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+  }
 </style>
 
-<div class="carousel">
-  <button class="btn prev" aria-label="Anterior">‹</button>
-  <div class="slides" style={`--count: ${images.length}`}>
-    {images.map(src => (
-      <div class="slide">
-        <img src={src} alt="" loading="lazy" />
+<div class="carousel-wrapper">
+  <button class="btn-arrow prev" aria-label="Anterior" id="btnPrev">‹</button>
+  <div class="carousel" id="thumbCarousel">
+    {images.map((src, i) => (
+      <div class="thumbnail" key={i}>
+        <img src={src} alt={`Combo ${i + 1}`} />
       </div>
     ))}
   </div>
-  <button class="btn next" aria-label="Siguiente">›</button>
+  <button class="btn-arrow next" aria-label="Siguiente" id="btnNext">›</button>
+</div>
+
+<div class="modal" id="imgModal">
+  <button class="close" aria-label="Cerrar">&times;</button>
+  <img id="modalImg" src="" alt="Imagen ampliada" />
 </div>
 
 <script type="module">
-  const carousel = document.querySelector('.carousel');
-  const slides   = carousel.querySelector('.slides');
-  const prev     = carousel.querySelector('.prev');
-  const next     = carousel.querySelector('.next');
-  const total    = slides.children.length;
-  let idx = 0;
+  // Carousel arrows
+  const carousel = document.getElementById('thumbCarousel');
+  const btnPrev = document.getElementById('btnPrev');
+  const btnNext = document.getElementById('btnNext');
 
-  function go() {
-    slides.style.transform = `translateX(-${idx * 100}vw)`;
+  // Scroll amount = width of one thumbnail + gap
+  const thumb = carousel.querySelector('.thumbnail');
+  const gap = parseInt(getComputedStyle(carousel).gap) || 16;
+  const scrollAmt = thumb.offsetWidth + gap;
+
+  function updateButtons() {
+    btnPrev.disabled = carousel.scrollLeft === 0;
+    btnNext.disabled = carousel.scrollLeft + carousel.clientWidth >= carousel.scrollWidth;
   }
 
-  prev.addEventListener('click', () => {
-    idx = (idx - 1 + total) % total;
-    go();
+  btnPrev.addEventListener('click', () => {
+    carousel.scrollBy({ left: -scrollAmt, behavior: 'smooth' });
   });
-
-  next.addEventListener('click', () => {
-    idx = (idx + 1) % total;
-    go();
+  btnNext.addEventListener('click', () => {
+    carousel.scrollBy({ left: scrollAmt, behavior: 'smooth' });
   });
+  carousel.addEventListener('scroll', updateButtons);
+  updateButtons();
 
-  if (autoplay > 0) {
-    setInterval(() => {
-      idx = (idx + 1) % total;
-      go();
-    }, autoplay);
-  }
+  // Modal lightbox
+  const modal    = document.getElementById('imgModal');
+  const modalImg = document.getElementById('modalImg');
+  const thumbs   = carousel.querySelectorAll('.thumbnail');
+  const btnClose = modal.querySelector('.close');
+
+  thumbs.forEach(thumbEl => {
+    thumbEl.addEventListener('click', () => {
+      modalImg.src = thumbEl.querySelector('img').src;
+      modal.classList.add('open');
+    });
+  });
+  btnClose.addEventListener('click', () => modal.classList.remove('open'));
+  modal.addEventListener('click', e => {
+    if (e.target === modal) modal.classList.remove('open');
+  });
 </script>
