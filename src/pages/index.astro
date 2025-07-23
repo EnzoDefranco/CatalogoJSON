@@ -1,22 +1,24 @@
 ---
-
-import Carousel from '@components/Carousel.astro';
-import CatalogoGrid from '@components/CatalogoGrid.astro';
-import FilterButtons from '@components/FilterButtons.astro';
-import Footer from '@components/Footer.astro';
-import Header from '@components/Header.astro';
-import SearchBar from '@components/SearchBar.astro';
+// src/pages/index.astro
 import Layout from '@layouts/Layout.astro';
+import Header from '@components/Header.astro';
+import Footer from '@components/Footer.astro';
+import Carousel from '@components/Carousel.astro';
+import SearchBar from '@components/SearchBar.astro';
+import FilterButtons from '@components/FilterButtons.astro';
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+// ¡OJO! No hace falta la extensión “.tsx” al importar componentes React
+import CatalogoGrid from '@components/CatalogoGrid';
 ---
-
 <Layout class="overflow-x-hidden">
-	<Header />
-	<Carousel />
-	<SearchBar />
-	<FilterButtons />
-	<CatalogoGrid />
-	<Footer />
+  <Header />
+
+  <Carousel />
+  <SearchBar />
+  <FilterButtons />
+
+  {/* Este client:load hidrata tu Island de React en el cliente */}
+  <CatalogoGrid client:load />
+
+  <Footer />
 </Layout>

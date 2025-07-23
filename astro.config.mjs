@@ -1,11 +1,21 @@
-// @ts-check
+// astro.config.mjs
 import { defineConfig } from 'astro/config';
-
+import react from '@astrojs/react';
 import tailwindcss from '@tailwindcss/vite';
 
-// https://astro.build/config
 export default defineConfig({
+  integrations: [
+    react(),            // habilita .tsx/.jsx
+  ],
   vite: {
-    plugins: [tailwindcss()]
-  }
+    resolve: {
+      alias: {
+        // Opcional: para que @components/… apunte a src/components
+        '@components': '/src/components',
+      },
+    },
+    plugins: [
+      tailwindcss(),
+    ],
+  },
 });
