@@ -50,16 +50,20 @@ const isOutOfStock = product.stock === 0;
     </span>
   </div>
 
-  <!-- Ribbon -->
-  {product.kilosUnitarios && (
+<div class="relative">
+  <!-- Sólo muestro badge si kilosUnitarios > 0 -->
+  {typeof product.kilosUnitarios === 'number' && product.kilosUnitarios > 0 && (
     <div class="absolute top-3 right-3 bg-green-500 text-white text-xs font-medium px-2 py-1 rounded-full">
-      {product.kilosUnitarios} KG
+      {product.kilosUnitarios.toFixed(2)} KG
     </div>
   )}
 
+  <!-- ... resto de la tarjeta ... -->
+</div>
+
   <!-- Imagen -->
 <img
-  src={`/images/${product.eanUnidad}.webp`}
+  src={`https://catalogoenro.s3.us-east-2.amazonaws.com/${product.idArticulo}.webp`}
   alt={product.descripcion}
   class="w-[200px] h-[200px] object-cover rounded-lg mx-auto"
   loading="lazy"
