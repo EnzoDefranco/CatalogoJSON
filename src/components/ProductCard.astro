@@ -53,7 +53,7 @@ const isOutOfStock = product.stock === 0;
 <div class="relative">
   <!-- Sólo muestro badge si kilosUnitarios > 0 -->
   {typeof product.kilosUnitarios === 'number' && product.kilosUnitarios > 0 && (
-    <div class="absolute top-3 right-3 bg-green-500 text-white text-xs font-medium px-2 py-1 rounded-full">
+    <div class="absolute top-1 right-1 bg-green-500 text-white text-xs font-medium px-1 rounded-full">
       {product.kilosUnitarios.toFixed(2)} KG
     </div>
   )}
