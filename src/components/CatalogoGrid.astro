@@ -4,7 +4,7 @@ import type { Props as PCProps } from './ProductCard.astro';
 import cursosRaw from '../../public/cursos.json';
 
 type Course = PCProps['product'];
-const rawList = cursosRaw.data as any[];
+const rawList = cursosRaw as any[];
 const cursos: Course[] = rawList.map((r) => ({
   idArticulo:      r.idArticulo,
   descripcion:     r.descripcion,
