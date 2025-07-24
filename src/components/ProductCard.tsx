@@ -20,6 +20,8 @@ interface ProductCardProps {
   product: Course;
 }
 
+const FALLBACK_IMG = 'https://demofree.sirv.com/nope-not-here.jpg';
+
 const parseDate = (dateStr: string): string => {
   const firstLine = dateStr.split('\n')[0].trim();
   const match = firstLine.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
@@ -28,15 +30,13 @@ const parseDate = (dateStr: string): string => {
     : '';
 };
 
-const fallbackSrc = '/images/prueba.jpg';
-
 const ProductCard: FC<ProductCardProps> = ({ product }) => {
   const fecha = product.ultModificacion ? parseDate(product.ultModificacion) : '';
   const isOutOfStock = product.stock === 0;
 
   const handleImgError: ImgHTMLAttributes<HTMLImageElement>['onError'] = (e) => {
-    e.currentTarget.onerror = null;
-    e.currentTarget.src = fallbackSrc;
+    e.currentTarget.onerror = null;            // evita bucles infinitos
+    e.currentTarget.src = FALLBACK_IMG;        // imagen de reserva
   };
 
   return (
