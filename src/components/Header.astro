@@ -1,16 +1,20 @@
 ---
 // src/components/Header.astro
 
+interface Props {
+  searchTerm?: string;
+}
+const { searchTerm = '' } = Astro.props;
+
 import SearchBar    from '@icons/Search.astro';
 import BurgerMenu   from '@icons/BurgerMenu.astro';
 import newLogoBlack from '../../public/newLogoBlack.png?url';
 import logoAzul     from '../../public/logoAzul.png?url';
 ---
 <header class="fixed inset-x-0 top-0 z-20 bg-white shadow-md">
-
-  <div class=" bg-white py-8 px-4">
+  <div class="bg-white py-8 px-4">
     <div class="container mx-auto flex items-center justify-between">
-  
+
       <div class="flex items-center">
         <button
           class="p-2 lg:hidden bg-transparent hover:bg-transparent focus:bg-transparent border-none outline-none"
@@ -18,30 +22,33 @@ import logoAzul     from '../../public/logoAzul.png?url';
         >
           <BurgerMenu class="h-6 w-6 text-gray-700" />
         </button>
-  
+
         <!-- Logo móvil -->
         <a href="/" class="ml-2 block lg:hidden">
           <img src={newLogoBlack} class="h-8" alt="Logo móvil" />
         </a>
-  
+
         <!-- Logo desktop -->
         <a href="/" class="hidden lg:block">
           <img src={logoAzul} class="h-8" alt="Logo desktop" />
         </a>
       </div>
-  
+
       <div class="flex-1 mx-4 max-w-full lg:max-w-md">
-        <form class="relative">
+        <!-- Form que envía GET /?nombre=… -->
+        <form method="GET" action="/" class="relative">
           <SearchBar class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
           <input
             type="search"
+            name="nombre"
+            value={searchTerm}
             placeholder="Buscar por producto"
             class="w-full border border-gray-300 rounded-full py-2.5 pl-10 pr-4
                    focus:outline-none focus:ring-2 focus:ring-primary transition"
           />
         </form>
       </div>
-  
+
       <nav class="hidden lg:flex space-x-6">
         <a href="#" class="no-underline text-md font-semibold text-primary border py-2.5 px-5 rounded-full hover:bg-primary hover:text-white transition">
           Quienes somos
@@ -53,7 +60,7 @@ import logoAzul     from '../../public/logoAzul.png?url';
           Combos
         </a>
       </nav>
-  
+
     </div>
   </div>
 </header>

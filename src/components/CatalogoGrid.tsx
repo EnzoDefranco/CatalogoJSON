@@ -1,31 +1,41 @@
 // src/components/CatalogoGrid.tsx
+
 import React from 'react';
 import type { FC } from 'react';
 import ProductCard from './ProductCard';
 import type { Course } from './ProductCard';
 
-const CatalogoGrid: FC = () => {
+interface Props {
+  searchTerm: string;
+}
+
+const CatalogoGrid: FC<Props> = ({ searchTerm }) => {
   const [cursos, setCursos] = React.useState<Course[]>([]);
-  const [page, setPage] = React.useState(1);
-  const [limit] = React.useState(8);  // Ajusta cuántos por página
-  const [total, setTotal] = React.useState(0);
+  const [page, setPage]     = React.useState(1);
+  const [limit]             = React.useState(8);  // Ajusta cuántos por página
+  const [total, setTotal]   = React.useState(0);
 
   const totalPages = Math.ceil(total / limit);
 
   React.useEffect(() => {
-    fetch(`/api/products?page=${page}&limit=${limit}`)
+    const q = new URLSearchParams({
+      nombre: searchTerm,
+      page:   String(page),
+      limit:  String(limit),
+    });
+    fetch(`/api/products?${q.toString()}`)
       .then((res) => res.json())
       .then((json) => {
         setCursos(json.data);
         setTotal(json.total);
       })
       .catch((err) => console.error(err));
-  }, [page, limit]);
+  }, [searchTerm, page, limit]);
 
   return (
     <div>
       {/* Grid de productos */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mt-4">
         {cursos.map((course) => (
           <ProductCard key={course.idArticulo} product={course} />
         ))}

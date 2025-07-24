@@ -2,25 +2,34 @@
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
-
-// Importa el JSON directamente — Astro lo convertirá en un objeto JS
 import cursosRaw from '../../../public/cursos.json';
 
 export const GET: APIRoute = async ({ request }) => {
   try {
-    // 1) Obtén tu array de productos
-    // (ajusta si tu JSON tiene otra estructura, p.ej. cursosRaw.data)
-    const items = (cursosRaw as any[]);
+    const items = cursosRaw as any[];
 
-    // 2) Parseo de query params
     const url        = new URL(request.url);
     const page       = Math.max(1, parseInt(url.searchParams.get('page')  || '1',  10));
     const limit      = Math.max(1, parseInt(url.searchParams.get('limit') || '5',  10));
     const proveedor  = url.searchParams.get('proveedor')?.toLowerCase() || '';
     const nombre     = url.searchParams.get('nombre')?.toLowerCase()   || '';
+    const idArticulo = url.searchParams.get('idArticulo');
 
-    // 3) Filtrado opcional
+    // 1) Filtrado base
     let filtered = items;
+
+    // 2) Si pasaron idArticulo, filtramos exacto
+    if (idArticulo) {
+      const idNum = Number(idArticulo);
+      if (!isNaN(idNum)) {
+        filtered = filtered.filter(i => i.idArticulo === idNum);
+      } else {
+        // Si no es número válido, devolvemos vacío
+        filtered = [];
+      }
+    }
+
+    // 3) Filtros de proveedor y nombre
     if (proveedor) {
       filtered = filtered.filter(i =>
         String(i.proveedorNombre).toLowerCase().includes(proveedor)
@@ -37,19 +46,17 @@ export const GET: APIRoute = async ({ request }) => {
     const start = (page - 1) * limit;
     const data  = filtered.slice(start, start + limit);
 
-    // 5) Responder con CORS y cache headers
+    // 5) Cabeceras y respuesta
     const headers = {
-      'Content-Type':              'application/json',
-      'Access-Control-Allow-Origin': '*',
-      // Opcional: cache en el edge por 60s
-      'Cache-Control':             's-maxage=60, stale-while-revalidate=300',
+      'Content-Type':               'application/json',
+      'Access-Control-Allow-Origin':'*',
+      'Cache-Control':              's-maxage=60, stale-while-revalidate=300',
     };
 
     return new Response(
       JSON.stringify({ data, total, page, limit }),
       { status: 200, headers }
     );
-
   } catch (err: any) {
     console.error('Error en API /api/products:', err);
     return new Response(
