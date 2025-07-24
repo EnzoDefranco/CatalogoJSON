@@ -1,14 +1,19 @@
+// astro.config.mjs
 import { defineConfig } from 'astro/config';
 import react from '@astrojs/react';
 import tailwindcss from '@tailwindcss/vite';
-import netlify from '@astrojs/netlify'; // ⬅️ importa el adaptador
+import netlify from '@astrojs/netlify/functions';
 
 export default defineConfig({
+  // Genera un servidor para que tus rutas API bajo src/pages/api se conviertan
+  // en funciones lambda de Netlify
+  output: 'server',
+  adapter: netlify(),
+
   integrations: [
-    react(),
+    react(),         // tu integración de React
   ],
-  adapter: netlify(),      // ⬅️ usa el adaptador
-  output: 'server',        // ⬅️ obligatorio para usar rutas API como /api/products
+
   vite: {
     resolve: {
       alias: {
@@ -16,7 +21,7 @@ export default defineConfig({
       },
     },
     plugins: [
-      tailwindcss(),
+      tailwindcss(),  // Tailwind CSS
     ],
   },
 });
